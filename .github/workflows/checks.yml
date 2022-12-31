@@ -1,5 +1,5 @@
 ---
-nsme: checks
+nsme: Checks
 
 on: [push]
 
