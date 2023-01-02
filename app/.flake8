@@ -3,7 +3,7 @@ exclude=
     migrations,
     __pycache__,
     manage.py,
-    setting.py,
+    settings.py,
 ignore =
     E121,
     E126,
