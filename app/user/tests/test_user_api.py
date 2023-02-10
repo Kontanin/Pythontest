@@ -10,9 +10,10 @@ from rest_framework import status
 
 
 CREATE_USER_URL = reverse('user:create')
+TOKEN_URL = reverse('user:token')
 ME_URL =reverse('user:me')
 
-def create__user(**params):
+def create_user(**params):
     """ create and return a new user ."""
     return get_user_model().objects.create_user(**params)
 
@@ -54,7 +55,7 @@ class PublicUserApiTests(TestCase):
             'name':'Test name'
         }
         res =self.client.post(CREATE_USER_URL, payload)
-        self.assrtEqual(res.status_code, status.HTTP_400_BAD_REQUSEST)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         user_exists=get_user_model().objects.filter(
             email= payload['email']
         ).exists()
@@ -65,7 +66,7 @@ def test_create_token_for_user(self):
     user_details={
         'name': 'Test Name',
         'email': 'test@example.com',
-        'password': 'test-user-password123' 
+        'password': 'test-user-password123', 
     }
     create_user(**user_details)
 
@@ -96,19 +97,19 @@ def test_create_token_for_user(self):
     def test_retrieve_user_unauthorized(self):
         res =self.client.get(ME_URL)
 
-        self.assertEqual(res.status_code,status.HTTP_401_UNAUATHORIZED)
+        self.assertEqual(res.status_code,status.HTTP_401_UNAUTHORIZED)
 
 class PrivateUserApiTests(TestCase):
 
 
-    def setUP(self):
+    def setUp(self):
         self.user=create_user(
             email='test@example.com',
             password='testpass123',
             name='Test name',
         )
-        self.client.APIClient()
-        self.client.force_authentication(user=self.user)
+        self.client=APIClient()
+        self.client.force_authenticate(user=self.user)
 
     def test_retrieve_user_unauthorized(self):
 
@@ -121,8 +122,8 @@ class PrivateUserApiTests(TestCase):
         })
 
     def test_post_me_not_allowed(self):
-        res=self.client.post(ME_URL,{})
-        self.assertEqual(res.status_code,status.HTTP_401_UNAUATHORIZED)
+        res=self.client.post(ME_URL, {})
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
     def test_update_user_profile(self):
