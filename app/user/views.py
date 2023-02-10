@@ -2,13 +2,13 @@
 
 views for the user API are
 """
-from rest_framework import generics,authorication,permissions
+from rest_framework import generics,authentication,permissions
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 
-from user.serializers import(
-    Userserializer,
-    AuthTokenSerializer
+from user.serializers import (
+    UserSerializer,
+    AuthTokenSerializer,
 )
 
 class CreateUserView(generics.CreateAPIView):
