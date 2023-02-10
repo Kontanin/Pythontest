@@ -111,7 +111,7 @@ class PrivateUserApiTests(TestCase):
         self.client=APIClient()
         self.client.force_authenticate(user=self.user)
 
-    def test_retrieve_user_unauthorized(self):
+    def test_retrieve_profile_success(self):
 
         res=self.client.get(ME_URL)
         self.assertEqual(res.status_code,status.HTTP_200_OK)
