@@ -13,18 +13,18 @@ from user.serializers import (
 
 class CreateUserView(generics.CreateAPIView):
     """Create a new user in the system"""
-    serializer_class = Userserializer
+    serializer_class = UserSerializer
 
 
 class CreateTokenView(ObtainAuthToken):
     serializer_class = AuthTokenSerializer
-    renderer_classse= api_settings.DEFAULT_RENDERER_CLASS
+    renderer_classes= api_settings.DEFAULT_RENDERER_CLASSES
 
 
-class ManageUserView(generics.RetrieveUpdateAPIview):
-    serializer_class = Userserializer
-    authorication_class=[authentication.TokenAuthentication]
-    permissions_class=[permissions.IsAuthenticated]
+class ManageUserView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    authentication_classes=[authentication.TokenAuthentication]
+    permission_class=[permissions.IsAuthenticated]
 
 
     def get_object(self):
