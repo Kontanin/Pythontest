@@ -1,7 +1,7 @@
 """ test for the user APi"""
 
 
-from django.tset import TestCase
+from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
@@ -10,9 +10,10 @@ from rest_framework import status
 
 
 CREATE_USER_URL = reverse('user:create')
+TOKEN_URL = reverse('user:token')
 ME_URL =reverse('user:me')
 
-def create__user(**params):
+def create_user(**params):
     """ create and return a new user ."""
     return get_user_model().objects.create_user(**params)
 
@@ -23,7 +24,7 @@ class PublicUserApiTests(TestCase):
         
     def test_create_user_success(self):
         payload={
-            'eamil':'test@exampl.com',
+            'email':'test@exampl.com',
             'password':'test123',
             'name':'Test Name',
             
@@ -33,9 +34,9 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         user=get_user_model().objects.get(email=payload['email'])
         self.assertTrue(user.check_password(payload['password']))
-        self.assertNotIn('password,res.data')
+        self.assertNotIn('password',res.data)
 
-    def tset_user_with_email_exists_error(self):
+    def test_user_with_email_exists_error(self):
         payload={
             
             'email': 'test@example.com',
@@ -54,7 +55,7 @@ class PublicUserApiTests(TestCase):
             'name':'Test name'
         }
         res =self.client.post(CREATE_USER_URL, payload)
-        self.assrtEqual(res.status_code, status.HTTP_400_BAD_REQUSEST)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         user_exists=get_user_model().objects.filter(
             email= payload['email']
         ).exists()
@@ -65,7 +66,7 @@ def test_create_token_for_user(self):
     user_details={
         'name': 'Test Name',
         'email': 'test@example.com',
-        'password': 'test-user-password123' 
+        'password': 'test-user-password123', 
     }
     create_user(**user_details)
 
@@ -96,21 +97,21 @@ def test_create_token_for_user(self):
     def test_retrieve_user_unauthorized(self):
         res =self.client.get(ME_URL)
 
-        self.assertEqual(res.status_code,status.HTTP_401_UNAUATHORIZED)
+        self.assertEqual(res.status_code,status.HTTP_401_UNAUTHORIZED)
 
 class PrivateUserApiTests(TestCase):
 
 
-    def setUP(self):
+    def setUp(self):
         self.user=create_user(
             email='test@example.com',
             password='testpass123',
             name='Test name',
         )
-        self.client.APIClient()
-        self.client.force_authentication(user=self.user)
+        self.client=APIClient()
+        self.client.force_authenticate(user=self.user)
 
-    def test_retrieve_user_unauthorized(self):
+    def test_retrieve_profile_success(self):
 
         res=self.client.get(ME_URL)
         self.assertEqual(res.status_code,status.HTTP_200_OK)
@@ -121,8 +122,8 @@ class PrivateUserApiTests(TestCase):
         })
 
     def test_post_me_not_allowed(self):
-        res=self.client.post(ME_URL,{})
-        self.assertEqual(res.status_code,status.HTTP_401_UNAUATHORIZED)
+        res=self.client.post(ME_URL, {})
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
     def test_update_user_profile(self):
